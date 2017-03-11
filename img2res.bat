@@ -1,1 +1,1 @@
-python ./src/ui_res.py ./etc/image/smile.png
+python ./src/ui_res.py ./etc/image/

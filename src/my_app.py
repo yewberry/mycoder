@@ -5,6 +5,7 @@ import wx
 from ui_mainframe import MyMainFrame
 from my_glob import LOG
 from my_conf import MyConf
+from my_session import MySession
 
 class MyApp(wx.App):
     """
@@ -13,16 +14,16 @@ class MyApp(wx.App):
     def OnInit(self):
         LOG.debug("OnInit")
         # init conf
-        p = os.getcwd()
-        p = os.path.join(p, "settings.ini")
-        MyConf(p)
-
-        #cfg = MyConf()
-        #LOG.debug(cfg.get("GENERAL", "VER"))
-        #cfg.set("GENERAL", "VER", "1.100.1")
+        MyConf(os.path.join(os.getcwd(), "my.settings"))
+        # init session
+        MySession(os.path.join(os.getcwd(), "my.session"))
         # setup MainFrame
-        frame = MyMainFrame(None, "Simple wxPython App")
+        frame = MyMainFrame(None, "MyCoder")
         self.SetTopWindow(frame)
         frame.Show(True)
         return True
+
+    def OnExit(self):
+        pass
+
 
