@@ -1,44 +1,58 @@
 # -*- coding: utf-8 -*-
 import os
+import json
 import ConfigParser
 from my_glob import LOG
+from my_glob import Singleton
 
-CFG_STR = """[GENERAL]
+CFG_INI = """[GENERAL]
 version=1.0.0
 """
-
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+CFG_JSON = {
+    "version": "1.0.0"
+}
 
 class MyConf(object):
     __metaclass__ = Singleton
 
-    def __init__(self, file_path=""):
-        LOG.info(u"settings.ini path:{}".format(file_path))
-        self.cfgPath = file_path
-        if file_path == "":
-            LOG.error("cfg file path is empty which shouldn't happen")
-        elif not os.path.isfile(file_path):
-            with open(self.cfgPath, "w") as f:
-                f.write(CFG_STR)
+    def __init__(self, file_path=None, file_type="json"):
+        LOG.info(u"cfg path:{}".format(file_path))
+        self.path = file_path
+        self.type = file_type
+        if self.path is None:
+            LOG.error("cfg file path is None which shouldn't happen")
+        elif not os.path.isfile(self.path):
+            with open(self.path, "w") as f:
+                if "json" == file_type:
+                    json.dump(CFG_JSON, f, sort_keys=True, indent=4, separators=(',', ': '))
+                elif "ini" == file_type:
+                    f.write(CFG_INI)
 
-    def get(self, sect, name):
+    # TODO yew thread-safe
+    def get_json(self, key):
+        with open(self.path, "r") as f:
+            rtn = json.load(f)[key]
+        return rtn
+
+    def set_json(self, key, val):
+        with open(self.path, "r") as f:
+            ctn = json.load(f)
+            ctn[key] = val
+        with open(self.path, "w") as f:
+            json.dump(ctn, f, sort_keys=True, indent=4, separators=(',', ': '))
+
+    def get_ini(self, sect, name):
         config = ConfigParser.ConfigParser()
-        config.read(self.cfgPath)
+        config.read(self.path)
         if not config.has_option(sect, name):
             return None
         return config.get(sect, name)
 
-    def set(self, sect, name, value):
+    def set_ini(self, sect, name, value):
         config = ConfigParser.ConfigParser()
-        config.read(self.cfgPath)
+        config.read(self.path)
         if not config.has_section(sect):
             config.add_section(sect)
         config.set(sect, name, value)
-        config.write(open(self.cfgPath, "r+"))
+        config.write(open(self.path, "r+"))
 
