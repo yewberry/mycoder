@@ -29,12 +29,12 @@ class MyConf(object):
                     f.write(CFG_INI)
 
     # TODO yew thread-safe
-    def get_json(self, key):
+    def get(self, key):
         with open(self.path, "r") as f:
             rtn = json.load(f)[key]
         return rtn
 
-    def set_json(self, key, val):
+    def set(self, key, val):
         with open(self.path, "r") as f:
             ctn = json.load(f)
             ctn[key] = val

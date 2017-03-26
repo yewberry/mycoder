@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 import wx
-import ui_res as res
+import my_res as res
 from my_glob import LOG
 from my_session import MySession
+from ui_notebook import MyNotebook
+from ui_texteditor import MyTextEditor
 
 ###########################################################################
 # MENU IDs
 ###########################################################################
-ID_OPEN = wx.ID_HIGHEST + 1
-ID_EXIT = wx.ID_HIGHEST + 2
-ID_SETTINGS = wx.ID_HIGHEST + 3
+ID_OPEN = wx.NewId()
+ID_EXIT = wx.NewId()
+ID_SETTINGS = wx.NewId()
 
 class MyMainFrame(wx.Frame):
     """
@@ -19,6 +21,7 @@ class MyMainFrame(wx.Frame):
         wx.Frame.__init__(self, parent, -1, title)
         self._statusbar = None
         self._session = None
+        self._nb = None
         # Set system menu icon
         self.SetIcon(res.m_title.GetIcon())
         self.load_session()
@@ -30,7 +33,7 @@ class MyMainFrame(wx.Frame):
     def create_client_area(self):
         self.create_menubar()
         # self.createToolbar()
-        # self.createPanels()
+        self.create_panels()
         self.create_statusbar()
         self.bind_events()
 
@@ -54,6 +57,9 @@ class MyMainFrame(wx.Frame):
         mb.Append(file_menu, u"文件")
         mb.Append(options_menu, u"选项")
         self.SetMenuBar(mb)
+
+    def create_panels(self):
+        self._nb = MyNotebook(self, -1)
 
     def create_statusbar(self):
         self._statusbar = self.CreateStatusBar()
@@ -87,7 +93,21 @@ class MyMainFrame(wx.Frame):
     ###########################################################################
     def bind_events(self):
         self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
+        self.Bind(wx.EVT_MENU, self.OnCloseWindow, id=ID_EXIT)
+        self.Bind(wx.EVT_MENU, self.OnOpenFile, id=ID_OPEN)
 
     def OnCloseWindow(self, evt):
         self.save_session()
         self.Destroy()
+
+    def OnOpenFile(self, evt):
+        ed = MyTextEditor(self._nb, -1)
+        ed.SetText(open('MyCoder.py').read())
+        ed.EmptyUndoBuffer()
+        ed.Colourise(0, -1)
+
+        self._nb.AddPage(ed, "title")
+
+
+
+
