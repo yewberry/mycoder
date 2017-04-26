@@ -5,11 +5,20 @@ import ConfigParser
 from my_glob import LOG
 from my_glob import Singleton
 
+# ---------------
+# CRITICAL 	50
+# ERROR 	40
+# WARNING 	30
+# INFO 	    20
+# DEBUG 	10
+# ---------------
+
 CFG_INI = """[GENERAL]
 version=1.0.0
 """
 CFG_JSON = {
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "logLevel": 10
 }
 
 class MyConf(object):
